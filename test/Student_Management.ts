@@ -235,6 +235,43 @@ import {
       expect(await students.length).to.eq(0)
     });
 
+    it("Should not allow non admin to delete student", async function() {
+      const { studentManagementContract, account1 } = await loadFixture(deployStudentManagement);
+      
+      const name = "Ali";
+      const age = 12;
+      const Studentclass = "jss3";
+      const gender = 0;
+
+      await studentManagementContract.registerStudent(
+        name,
+        age,
+        Studentclass,
+        gender );
+
+      await expect(studentManagementContract.connect(account1).deleteStudent(1)).to.be.revertedWith("You are not the admin");
+    });
+
+    it("Should mark student as deleted", async function() {
+      const { studentManagementContract } = await loadFixture(deployStudentManagement);
+      
+      const name2 = "jane smith";
+      const age2 = 13;
+      const studentClass2 = "js2";
+      const gender2 = 1;
+
+      await studentManagementContract.registerStudent(
+          name2,
+          age2,
+          studentClass2,
+          gender2);
+
+      await studentManagementContract.deleteStudent(1);
+
+      const isDeleted = await studentManagementContract.isDeleted(1);
+      expect(isDeleted).to.be.true;
+  });
+
     it("Should delete students in Student", async function() {
       const {
         studentManagementContract,
@@ -263,7 +300,7 @@ import {
       const student = await studentManagementContract.getStudents();
 
       expect(student[0].name).to.equal("Emeke Chidera");
-    })
+    });
 
 
     it("Should updatd student with valid id ", async function () {
@@ -294,8 +331,7 @@ import {
         const student = await studentManagementContract.getStudent(1);
 
         expect(await student.class).to.eq("js2")
-
-        
+ 
         
       
     });
